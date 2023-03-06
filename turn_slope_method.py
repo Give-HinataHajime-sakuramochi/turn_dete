@@ -273,6 +273,7 @@ while cap.isOpened():
     if (i!=0 and i%10==0) or i==1:
         if both_lines_flag == True:
             # call_turn_determinal_function
+            # 施工中
             pass
         else:
             turn_dir,ls,lr=Cal_SV(left_s,right_s,front_f_ls,front_f_rs)
