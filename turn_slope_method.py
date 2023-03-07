@@ -239,7 +239,9 @@ def Cal_SV(left_s,right_s,front_f_ls,front_f_rs): #只有一條或沒偵測到�
         string= "0"
     return string,slope_vl, slope_vr
 
-def Point_T(point_x,point_y,inter_x,inter_y):
+def Point_T(point_x,point_y,inter_x,inter_y):   #################################################################
+    # point_x,point_y=camera 座標、inter_x,inter_y=兩車道線交點，此兩點形成的線=Line
+    # 計算直線 x=point_x 與 Line 的夾角(銳角)
     if abs(inter_x-point_x)<50:
         return "Straight"
     elif inter_x-point_x>0:
