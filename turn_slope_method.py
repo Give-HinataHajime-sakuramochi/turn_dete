@@ -174,7 +174,7 @@ def pipeline(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # 2. Gaussian Smoothing
-    blur_gray = cv2.GaussianBlur(gray, (11, 11), 0)
+    blur_gray = cv2.GaussianBlur(image, (11, 11), 0)
 
     # 3. canny
     low_threshold = 75
@@ -204,44 +204,27 @@ def pipeline(image):
     return test_images_output,left_s,right_s,intersection_x,intersection_y
 
 def Cal_SV(left_s,right_s,front_f_ls,front_f_rs): #只有一條或沒偵測到線的時候用
-    slope_vl, slope_vr = 0,0
-    flagl,flagr=False,False
+    string = ""
+    num=0
     if left_s != 0:
-        slope_vl = left_s-1
-        flagl=True
+        if left_s-front_f_ls<num:
+            string="turn left"
+        elif left_s - front_f_ls>num:
+            string= "turn right"
+        else:
+            string= "straight"
     if right_s != 0:
-        slope_vr = right_s+1
-        flagr=True
-    flag=flagr and flagl
-    string=""
-    if flag==False:
-        if left_s != 0:
-            if left_s-front_f_ls<0:
-                string="turn left"
-            elif left_s - front_f_ls >0:
-                string= "turn right"
-            else:
-                string= "straight"
-        if right_s != 0:
-            if right_s-front_f_rs<0:
-                string= "turn left"
-            elif right_s - front_f_rs >0:
-                string= "turn right"
-            else:
-                string= "straight"
-    if abs(slope_vl)<0.3 and abs(slope_vr)<0.3:
-        string= "straight"
-    elif slope_vl<0 or slope_vr<0:
-        string= "turn left"
-    elif slope_vl > 0 or slope_vr > 0:
-        string= "turn right"
-    else:
+        if right_s-front_f_rs<num:
+            string= "turn left"
+        elif right_s - front_f_rs >num:
+            string= "turn right"
+        else:
+            string= "straight"
+    if left_s==0 and right_s==0:
         string= "0"
-    return string,slope_vl, slope_vr
+    return string
 
-def Point_T(point_x,point_y,inter_x,inter_y):   #################################################################
-    # point_x,point_y=camera 座標、inter_x,inter_y=兩車道線交點，此兩點形成的線=Line
-    # 計算直線 x=point_x 與 Line 的夾角(銳角)
+def Point_T(point_x,point_y,inter_x,inter_y):
     if abs(inter_x-point_x)<50:
         return "Straight"
     elif inter_x-point_x>0:
@@ -259,8 +242,8 @@ def Point_T(point_x,point_y,inter_x,inter_y):   ################################
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
 
-#path = "./test.mp4"
-path = "./video_Trim.mp4"
+path = "./test.mp4"
+#path = "./video_Trim.mp4"
 # cv2.namedWindow('windows', cv2.WINDOW_NORMAL)
 cap = cv2.VideoCapture(path)
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -269,7 +252,7 @@ i = 0
 
 front_f_ls,front_f_rs=0,0
 turn_dir="straight"
-ls,lr=0,0
+
 # 範例影片size=1440x2560x3
 while cap.isOpened():
     ret, frame = cap.read()
@@ -277,20 +260,23 @@ while cap.isOpened():
     point_x,point_y=frame.shape[1]/2,frame.shape[0]
     last_dir=turn_dir
     if (i!=0 and i%5==0) or i==1:
-        if left_s!=0 and right_s!=0:  #有兩條線
+        if abs(left_s-front_f_ls)>0.5 or abs(right_s-front_f_rs)>0.5:#換車道，斜率有急遽變化時
+            turn_dir = Cal_SV(left_s, right_s, front_f_ls, front_f_rs)
+        elif left_s!=0 and right_s!=0:  #有兩條線
             turn_dir=Point_T(point_x,point_y,intersection_x,intersection_y)
-        else: #只有一條線或沒有線
-            turn_dir,ls,lr=Cal_SV(left_s,right_s,front_f_ls,front_f_rs)
+        if left_s!=0:
+            front_f_ls=left_s
+        if right_s!=0:
+            front_f_rs =right_s
     if turn_dir=="0":
         turn_dir=last_dir
     cv2.putText(img, turn_dir, (50, 50), cv2.FONT_HERSHEY_DUPLEX, 2, (0, 255, 255), 2)
-    #cv2.putText(img, str(ls), (50, 100), cv2.FONT_HERSHEY_DUPLEX, 2, (0, 255, 255), 2)
-    #cv2.putText(img, str(lr), (50, 150), cv2.FONT_HERSHEY_DUPLEX, 2, (0, 255, 255), 2)
+    cv2.putText(img, str(left_s), (50, 100), cv2.FONT_HERSHEY_DUPLEX, 2, (0, 255, 255), 2)
+    cv2.putText(img, str(right_s), (50, 150), cv2.FONT_HERSHEY_DUPLEX, 2, (0, 255, 255), 2)
     out.write(img)
     cv2.namedWindow("windows", 0)
     cv2.resizeWindow("windows", 640, 480)
     cv2.imshow("windows", img)
-    front_f_ls,front_f_rs=left_s,right_s
     #cv2.waitKey(1)
     i+=1
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -298,5 +284,4 @@ while cap.isOpened():
 cap.release()
 out.release()
 # cv2.destroyAllWindows()
-
 # 換車道附近仍需修正
