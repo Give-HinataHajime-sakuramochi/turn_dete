@@ -260,10 +260,10 @@ while cap.isOpened():
     point_x,point_y=frame.shape[1]/2,frame.shape[0]
     last_dir=turn_dir
     if (i!=0 and i%5==0) or i==1:
-        if abs(left_s-front_f_ls)>0.5 or abs(right_s-front_f_rs)>0.5:#換車道，斜率有急遽變化時
-            turn_dir = Cal_SV(left_s, right_s, front_f_ls, front_f_rs)
-        elif left_s!=0 and right_s!=0:  #有兩條線
+        if left_s!=0 and right_s!=0:  #有兩條線
             turn_dir=Point_T(point_x,point_y,intersection_x,intersection_y)
+        else:
+            turn_dir = Cal_SV(left_s, right_s, front_f_ls, front_f_rs)
         if left_s!=0:
             front_f_ls=left_s
         if right_s!=0:
