@@ -224,13 +224,24 @@ def Cal_SV(left_s,right_s,front_f_ls,front_f_rs): #只有一條或沒偵測到�
         string= "0"
     return string
 
-def Point_T(point_x,point_y,inter_x,inter_y):
-    if abs(inter_x-point_x)<50:
+
+def Point_T(point_x, point_y, inter_x, inter_y):
+    radian1 = math.atan2(inter_y-point_y, inter_x-point_x)
+    angle1 = (radian1 * 180) / math.pi
+    
+    radian2 = math.atan2(point_y/2-point_y, point_x-point_x)
+    angle2 = (radian2 * 180) / math.pi
+
+    included_angle = abs(angle1 - angle2)
+    print("夾角:", included_angle)
+
+    if abs(inter_x-point_x) < 50:
         return "Straight"
-    elif inter_x-point_x>0:
+    elif inter_x-point_x > 0:
         return "Turn right"
     else:
         return "Turn left"
+
 
 
 
