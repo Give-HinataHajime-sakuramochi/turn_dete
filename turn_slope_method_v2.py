@@ -63,25 +63,25 @@ def draw_lines(img, lines, color=[255, 0, 0], thickness=5):
     right_y = []
     right_slope = []
     right_intercept = []
-
-    for line in lines:
-        for x1, y1, x2, y2 in line:
-            slope = cal_slope(x1, y1, x2, y2)
-            if slope is not None and 0.5 < slope < 2.0:
-                left_slope.append(cal_slope(x1, y1, x2, y2))
-                left_x.append(x1)
-                left_x.append(x2)
-                left_y.append(y1)
-                left_y.append(y2)
-                left_intercept.append(y1 - x1 * cal_slope(x1, y1, x2, y2))
-            if slope is not None and -2.0 < slope < -0.5:
-                right_slope.append(cal_slope(x1, y1, x2, y2))
-                right_x.append(x1)
-                right_x.append(x2)
-                right_y.append(y1)
-                right_y.append(y2)
-                right_intercept.append(y1 - x1 * cal_slope(x1, y1, x2, y2))
-            # else continue
+    if lines is not None:
+        for line in lines:
+            for x1, y1, x2, y2 in line:
+                slope = cal_slope(x1, y1, x2, y2)
+                if slope is not None and 0.5 < slope < 2.0:
+                    left_slope.append(cal_slope(x1, y1, x2, y2))
+                    left_x.append(x1)
+                    left_x.append(x2)
+                    left_y.append(y1)
+                    left_y.append(y2)
+                    left_intercept.append(y1 - x1 * cal_slope(x1, y1, x2, y2))
+                if slope is not None and -2.0 < slope < -0.5:
+                    right_slope.append(cal_slope(x1, y1, x2, y2))
+                    right_x.append(x1)
+                    right_x.append(x2)
+                    right_y.append(y1)
+                    right_y.append(y2)
+                    right_intercept.append(y1 - x1 * cal_slope(x1, y1, x2, y2))
+                # else continue
     # Line: y = ax + b
     # Calculate a & b by the two given line(right & left)
     average_left_slope = 0
